@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Wekelijkse Boodschappen</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --ok: #16a34a;
+      --bad: #dc2626;
+      --shadow: 0 10px 24px rgba(0,0,0,.06);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 16px;
+    }
+
+    .app {
+      max-width: 760px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+      padding-bottom: 40px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    h1, h2, h3 { margin: 0; }
+
+    .subtitle {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    input, select, button {
+      font: inherit;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      min-height: 46px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      background: #fff;
+    }
+
+    button {
+      padding: 10px 14px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .soft {
+      background: var(--accent-soft);
+      border-color: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .danger {
+      color: var(--bad);
+    }
+
+    .toolbar {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr;
+      margin-top: 12px;
+    }
+
+    .store-block + .store-block {
+      margin-top: 16px;
+    }
+
+    .store-title {
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    .category {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+
+    .category h3 {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      align-items: start;
+      background: #fff;
+    }
+
+    .item + .item {
+      margin-top: 10px;
+    }
+
+    .item.done .name {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    .check {
+      width: 22px;
+      height: 22px;
+      margin-top: 2px;
+    }
+
+    .item-main {
+      display: grid;
+      gap: 8px;
+    }
+
+    .name {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mini {
+      min-height: 36px;
+      padding: 6px 10px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .status-ok {
+      border-color: rgba(22,163,74,.25);
+      color: var(--ok);
+      background: rgba(22,163,74,.08);
+    }
+
+    .status-bad {
+      border-color: rgba(220,38,38,.25);
+      color: var(--bad);
+      background: rgba(220,38,38,.08);
+    }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 16px;
+      border: 1px dashed var(--line);
+      border-radius: 14px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (min-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1.6fr 1fr 1fr auto;
+        align-items: end;
+      }
+
+      .toolbar {
+        grid-template-columns: repeat(3, auto);
+        justify-content: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="card">
+      <h1>Wekelijkse boodschappen</h1>
+      <p class="subtitle">Simpel, mobiel vriendelijk en lokaal opgeslagen op je telefoon.</p>
+
+      <div class="form-grid">
+        <div>
+          <label for="product">Product</label>
+          <input id="product" type="text" placeholder="Bijv. bananen" />
+        </div>
+        <div>
+          <label for="store">Winkel</label>
+          <select id="store">
+            <option value="Digros">Digros</option>
+            <option value="Albert Heijn">Albert Heijn</option>
+            <option value="Overig">Overig</option>
+          </select>
+        </div>
+        <div>
+          <label for="category">Categorie</label>
+          <select id="category">
+            <option>Groente & fruit</option>
+            <option>Brood & bakkerij</option>
+            <option>Zuivel & gekoeld</option>
+            <option>Vlees & vis</option>
+            <option>Houdbaar</option>
+            <option>Snacks & drinken</option>
+            <option>Baby</option>
+            <option>Huisdier</option>
+            <option>Diepvries</option>
+            <option>Overig</option>
+          </select>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button id="addBtn" class="primary" type="button">Toevoegen</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button id="loadSample" class="soft" type="button">Laad voorbeeldlijst</button>
+        <button id="clearDone" type="button">Verwijder afgevinkt</button>
+        <button id="resetAll" class="danger" type="button">Wis alles</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div id="list"></div>
+    </section>
+
+    <div class="footer-note">Per product kun je aangeven of de categorie klopt: Onbekend → Correct → Niet correct.</div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'wekelijkse-boodschappen-v1';
+
+    const defaultItems = [
+      { name: 'Bananen', store: 'Digros', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
+      { name: 'Appels', store: 'Digros', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
+      { name: 'Melk', store: 'Digros', category: 'Zuivel & gekoeld', done: false, categoryStatus: 'unknown' },
+      { name: 'Kaas', store: 'Digros', category: 'Zuivel & gekoeld', done: false, categoryStatus: 'unknown' },
+      { name: 'Mandarijnen', store: 'Albert Heijn', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
+      { name: 'Hondenbrokken', store: 'Albert Heijn', category: 'Huisdier', done: false, categoryStatus: 'unknown' }
+    ];
+
+    const productInput = document.getElementById('product');
+    const storeInput = document.getElementById('store');
+    const categoryInput = document.getElementById('category');
+    const addBtn = document.getElementById('addBtn');
+    const loadSampleBtn = document.getElementById('loadSample');
+    const clearDoneBtn = document.getElementById('clearDone');
+    const resetAllBtn = document.getElementById('resetAll');
+    const listEl = document.getElementById('list');
+
+    let items = loadItems();
+
+    function loadItems() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveItems() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    }
+
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function addItem(name, store, category) {
+      items.push({
+        id: uid(),
+        name: name.trim(),
+        store,
+        category,
+        done: false,
+        categoryStatus: 'unknown'
+      });
+      saveItems();
+      render();
+    }
+
+    function toggleDone(id) {
+      const item = items.find(x => x.id === id);
+      if (!item) return;
+      item.done = !item.done;
+      saveItems();
+      render();
+    }
+
+    function cycleCategoryStatus(id) {
+      const item = items.find(x => x.id === id);
+      if (!item) return;
+      if (item.categoryStatus === 'unknown') item.categoryStatus = 'correct';
+      else if (item.categoryStatus === 'correct') item.categoryStatus = 'wrong';
+      else item.categoryStatus = 'unknown';
+      saveItems();
+      render();
+    }
+
+    function removeItem(id) {
+      items = items.filter(x => x.id !== id);
+      saveItems();
+      render();
+    }
+
+    function clearDone() {
+      items = items.filter(x => !x.done);
+      saveItems();
+      render();
+    }
+
+    function resetAll() {
+      if (!confirm('Weet je zeker dat je alle boodschappen wilt wissen?')) return;
+      items = [];
+      saveItems();
+      render();
+    }
+
+    function loadSample() {
+      if (items.length && !confirm('De huidige lijst blijft bestaan. Voorbeeldproducten toevoegen?')) return;
+      items = [...items, ...defaultItems.map(item => ({ ...item, id: uid() }))];
+      saveItems();
+      render();
+    }
+
+    function groupedItems() {
+      const grouped = {};
+      const stores = ['Digros', 'Albert Heijn', 'Overig'];
+
+      for (const store of stores) {
+        const storeItems = items.filter(item => item.store === store);
+        if (!storeItems.length) continue;
+
+        grouped[store] = {};
+        for (const item of storeItems) {
+          if (!grouped[store][item.category]) grouped[store][item.category] = [];
+          grouped[store][item.category].push(item);
+        }
+      }
+
+      return grouped;
+    }
+
+    function statusLabel(status) {
+      if (status === 'correct') return 'Categorie: correct';
+      if (status === 'wrong') return 'Categorie: niet correct';
+      return 'Categorie: onbekend';
+    }
+
+    function statusClass(status) {
+      if (status === 'correct') return 'status-ok';
+      if (status === 'wrong') return 'status-bad';
+      return '';
+    }
+
+    function render() {
+      if (!items.length) {
+        listEl.innerHTML = '<div class="empty">Nog geen producten toegevoegd.</div>';
+        return;
+      }
+
+      const groups = groupedItems();
+      const storeOrder = ['Digros', 'Albert Heijn', 'Overig'];
+      const categoryOrder = [
+        'Groente & fruit',
+        'Brood & bakkerij',
+        'Zuivel & gekoeld',
+        'Vlees & vis',
+        'Houdbaar',
+        'Snacks & drinken',
+        'Baby',
+        'Huisdier',
+        'Diepvries',
+        'Overig'
+      ];
+
+      listEl.innerHTML = storeOrder
+        .filter(store => groups[store])
+        .map(store => {
+          const categories = groups[store];
+          return `
+            <div class="store-block">
+              <h2 class="store-title">${store}</h2>
+              ${categoryOrder
+                .filter(category => categories[category])
+                .map(category => `
+                  <div class="category">
+                    <h3>${category}</h3>
+                    ${categories[category]
+                      .map(item => `
+                        <div class="item ${item.done ? 'done' : ''}">
+                          <input class="check" type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleDone('${item.id}')" />
+                          <div class="item-main">
+                            <div class="name">${escapeHtml(item.name)}</div>
+                            <div class="meta">${statusLabel(item.categoryStatus)}</div>
+                            <div class="actions">
+                              <button class="mini ${statusClass(item.categoryStatus)}" type="button" onclick="cycleCategoryStatus('${item.id}')">Controleer categorie</button>
+                              <button class="mini danger" type="button" onclick="removeItem('${item.id}')">Verwijder</button>
+                            </div>
+                          </div>
+                        </div>
+                      `)
+                      .join('')}
+                  </div>
+                `)
+                .join('')}
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    addBtn.addEventListener('click', () => {
+      const name = productInput.value.trim();
+      if (!name) {
+        productInput.focus();
+        return;
+      }
+      addItem(name, storeInput.value, categoryInput.value);
+      productInput.value = '';
+      productInput.focus();
+    });
+
+    productInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') addBtn.click();
+    });
+
+    loadSampleBtn.addEventListener('click', loadSample);
+    clearDoneBtn.addEventListener('click', clearDone);
+    resetAllBtn.addEventListener('click', resetAll);
+
+    window.toggleDone = toggleDone;
+    window.cycleCategoryStatus = cycleCategoryStatus;
+    window.removeItem = removeItem;
+
+    render();
+  </script>
+</body>
+</html>
