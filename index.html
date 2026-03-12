@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
@@ -106,6 +106,12 @@
       margin-top: 16px;
     }
 
+    .filter-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
     .store-title {
       margin-bottom: 10px;
       font-size: 20px;
@@ -174,6 +180,21 @@
       gap: 8px;
     }
 
+    .item-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .mini-select {
+      min-height: 36px;
+      width: auto;
+      max-width: 100%;
+      padding: 6px 10px;
+      font-size: 14px;
+    }
+
     .mini {
       min-height: 36px;
       padding: 6px 10px;
@@ -207,10 +228,79 @@
       text-align: center;
     }
 
+    .category-controls {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .category-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .category-rank {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .category-name {
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .hint {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .status-message {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status-message.visible {
+      display: block;
+    }
+
+    .status-message.ok {
+      background: rgba(22,163,74,.08);
+      color: var(--ok);
+      border: 1px solid rgba(22,163,74,.25);
+    }
+
+    .status-message.error {
+      background: rgba(220,38,38,.08);
+      color: var(--bad);
+      border: 1px solid rgba(220,38,38,.25);
+    }
+
     @media (min-width: 640px) {
       .form-grid {
         grid-template-columns: 1.6fr 1fr 1fr auto;
         align-items: end;
+      }
+
+      .filter-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
       }
 
       .toolbar {
@@ -261,80 +351,148 @@
       </div>
 
       <div class="toolbar">
-        <button id="loadSample" class="soft" type="button">Laad voorbeeldlijst</button>
+        <button id="downloadTemplate" type="button">Download template</button>
+        <button id="importTemplate" type="button">Upload template</button>
         <button id="clearDone" type="button">Verwijder afgevinkt</button>
         <button id="resetAll" class="danger" type="button">Wis alles</button>
       </div>
+
+      <input id="templateFile" type="file" accept=".csv,text/csv" hidden />
+      <div id="statusMessage" class="status-message" role="status" aria-live="polite"></div>
+      <p class="hint">
+        Vul het CSV-template in met kolommen <strong>product</strong>, <strong>winkel</strong> en <strong>categorie</strong>.
+        Upload daarna het bestand om de lijst in een keer aan te vullen.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Filters</h2>
+      <div class="filter-grid">
+        <div>
+          <label for="filterStore">Supermarkt</label>
+          <select id="filterStore">
+            <option value="all">Alle supermarkten</option>
+          </select>
+        </div>
+        <div>
+          <label for="filterCategory">Categorie</label>
+          <select id="filterCategory">
+            <option value="all">Alle categorieen</option>
+          </select>
+        </div>
+        <div>
+          <label for="filterDone">Afvinkstatus</label>
+          <select id="filterDone">
+            <option value="all">Alles</option>
+            <option value="open">Niet afgevinkt</option>
+            <option value="done">Afgevinkt</option>
+          </select>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button id="resetFilters" type="button">Reset filters</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Categorievolgorde</h2>
+      <p class="subtitle">Pas de volgorde aan op basis van je looproute in de supermarkt.</p>
+      <div id="categoryControls" class="category-controls"></div>
     </section>
 
     <section class="card">
       <div id="list"></div>
     </section>
 
-    <div class="footer-note">Per product kun je aangeven of de categorie klopt: Onbekend → Correct → Niet correct.</div>
+    <div class="footer-note">Per product kun je aangeven of de categorie klopt: Onbekend â†’ Correct â†’ Niet correct.</div>
   </div>
 
+  <script id="defaultTemplateData" type="text/plain">
+product,winkel,categorie
+Bananen,Digros,Groente & fruit
+Appels (Elstar/Jonagold),Digros,Groente & fruit
+Sla,Digros,Groente & fruit
+Bloemkool,Digros,Groente & fruit
+Sperziebonen 500g+,Digros,Groente & fruit
+Cherrytomaatjes,Digros,Groente & fruit
+Champignons,Digros,Groente & fruit
+Zak pizzagroenten,Digros,Groente & fruit
+Uien (zak),Digros,Groente & fruit
+Hamburgerbroodjes,Digros,Brood & bakkerij
+Ontbijtkoek volkoren,Digros,Brood & bakkerij
+Donut,Digros,Brood & bakkerij
+Melk (1 groot + 2 klein),Digros,Zuivel & gekoeld
+Vla,Digros,Zuivel & gekoeld
+Yoghurt,Digros,Zuivel & gekoeld
+Tiramisu,Digros,Zuivel & gekoeld
+Slagroom,Digros,Zuivel & gekoeld
+Creme fraiche,Digros,Zuivel & gekoeld
+Kaas,Digros,Zuivel & gekoeld
+Geraspte kaas,Digros,Zuivel & gekoeld
+Eieren,Digros,Zuivel & gekoeld
+1 kilo halfom gehakt,Digros,Vlees & vis
+Pizzakit,Digros,Houdbaar
+Paneermeel,Digros,Houdbaar
+Witte rijst,Digros,Houdbaar
+Ananas in blik,Digros,Houdbaar
+Augurk,Digros,Houdbaar
+Pastasaus Grand Italia Tradizionale,Digros,Houdbaar
+Volkoren luchtige crackers kindjes,Digros,Snacks & drinken
+Paprikachips,Digros,Snacks & drinken
+Zak cranberry noten,Digros,Snacks & drinken
+Frisdrank (spa rood / cola zero / sprite),Digros,Snacks & drinken
+Baby potjes,Digros,Baby
+Aviko oma's smulfriet,Digros,Diepvries
+Zoete aardappel wedges,Digros,Diepvries
+Bladerdeegplakjes,Digros,Diepvries
+Mandarijnen,Albert Heijn,Groente & fruit
+Hondenbrokken,Albert Heijn,Huisdier
+Tempe ketjap (2 bakjes),Albert Heijn,Vlees & vis
+  </script>
+
   <script>
-    const STORAGE_KEY = 'wekelijkse-boodschappen-v1';
+    const STORAGE_KEY = 'wekelijkse-boodschappen-v3';
+    const CATEGORY_ORDER_KEY = 'wekelijkse-boodschappen-category-order-v1';
+    const TEMPLATE_FILE = './boodschappen-template.csv';
 
-    const defaultItems = [
-      { name: 'Bananen', store: 'Digros', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
-      { name: 'Appels (Elstar/Jonagold)', store: 'Digros', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
-      { name: 'Sla', store: 'Digros', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
-      { name: 'Bloemkool', store: 'Digros', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
-      { name: 'Sperziebonen 500g+', store: 'Digros', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
-      { name: 'Cherrytomaatjes', store: 'Digros', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
-      { name: 'Champignons', store: 'Digros', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
-      { name: 'Zak pizzagroenten', store: 'Digros', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
-      { name: 'Uien (zak)', store: 'Digros', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
-
-      { name: 'Hamburgerbroodjes', store: 'Digros', category: 'Brood & bakkerij', done: false, categoryStatus: 'unknown' },
-      { name: 'Ontbijtkoek volkoren', store: 'Digros', category: 'Brood & bakkerij', done: false, categoryStatus: 'unknown' },
-      { name: 'Donut', store: 'Digros', category: 'Brood & bakkerij', done: false, categoryStatus: 'unknown' },
-
-      { name: 'Melk (1 groot + 2 klein)', store: 'Digros', category: 'Zuivel & gekoeld', done: false, categoryStatus: 'unknown' },
-      { name: 'Vla', store: 'Digros', category: 'Zuivel & gekoeld', done: false, categoryStatus: 'unknown' },
-      { name: 'Yoghurt', store: 'Digros', category: 'Zuivel & gekoeld', done: false, categoryStatus: 'unknown' },
-      { name: 'Tiramisu', store: 'Digros', category: 'Zuivel & gekoeld', done: false, categoryStatus: 'unknown' },
-      { name: 'Slagroom', store: 'Digros', category: 'Zuivel & gekoeld', done: false, categoryStatus: 'unknown' },
-      { name: 'Crème fraiche', store: 'Digros', category: 'Zuivel & gekoeld', done: false, categoryStatus: 'unknown' },
-      { name: 'Kaas', store: 'Digros', category: 'Zuivel & gekoeld', done: false, categoryStatus: 'unknown' },
-      { name: 'Geraspte kaas', store: 'Digros', category: 'Zuivel & gekoeld', done: false, categoryStatus: 'unknown' },
-      { name: 'Eieren', store: 'Digros', category: 'Zuivel & gekoeld', done: false, categoryStatus: 'unknown' },
-
-      { name: '1 kilo halfom gehakt', store: 'Digros', category: 'Vlees & vis', done: false, categoryStatus: 'unknown' },
-
-      { name: 'Pizzakit', store: 'Digros', category: 'Houdbaar', done: false, categoryStatus: 'unknown' },
-      { name: 'Paneermeel', store: 'Digros', category: 'Houdbaar', done: false, categoryStatus: 'unknown' },
-      { name: 'Witte rijst', store: 'Digros', category: 'Houdbaar', done: false, categoryStatus: 'unknown' },
-      { name: 'Ananas in blik', store: 'Digros', category: 'Houdbaar', done: false, categoryStatus: 'unknown' },
-      { name: 'Augurk', store: 'Digros', category: 'Houdbaar', done: false, categoryStatus: 'unknown' },
-      { name: 'Pastasaus Grand Italia Tradizionale', store: 'Digros', category: 'Houdbaar', done: false, categoryStatus: 'unknown' },
-
-      { name: 'Volkoren luchtige crackers kindjes', store: 'Digros', category: 'Snacks & drinken', done: false, categoryStatus: 'unknown' },
-      { name: 'Paprikachips', store: 'Digros', category: 'Snacks & drinken', done: false, categoryStatus: 'unknown' },
-      { name: 'Zak cranberry noten', store: 'Digros', category: 'Snacks & drinken', done: false, categoryStatus: 'unknown' },
-      { name: 'Frisdrank (spa rood / cola zero / sprite)', store: 'Digros', category: 'Snacks & drinken', done: false, categoryStatus: 'unknown' },
-
-      { name: 'Baby potjes', store: 'Digros', category: 'Baby', done: false, categoryStatus: 'unknown' },
-
-      { name: 'Aviko oma’s smulfriet', store: 'Digros', category: 'Diepvries', done: false, categoryStatus: 'unknown' },
-      { name: 'Zoete aardappel wedges', store: 'Digros', category: 'Diepvries', done: false, categoryStatus: 'unknown' },
-      { name: 'Bladerdeegplakjes', store: 'Digros', category: 'Diepvries', done: false, categoryStatus: 'unknown' },
-
-      { name: 'Mandarijnen', store: 'Albert Heijn', category: 'Groente & fruit', done: false, categoryStatus: 'unknown' },
-      { name: 'Hondenbrokken', store: 'Albert Heijn', category: 'Huisdier', done: false, categoryStatus: 'unknown' },
-      { name: 'Tempé ketjap (2 bakjes)', store: 'Albert Heijn', category: 'Vlees & vis', done: false, categoryStatus: 'unknown' }
-    ];
 
     const productInput = document.getElementById('product');
     const storeInput = document.getElementById('store');
     const categoryInput = document.getElementById('category');
     const addBtn = document.getElementById('addBtn');
-    const loadSampleBtn = document.getElementById('loadSample');
     const clearDoneBtn = document.getElementById('clearDone');
     const resetAllBtn = document.getElementById('resetAll');
+    const downloadTemplateBtn = document.getElementById('downloadTemplate');
+    const importTemplateBtn = document.getElementById('importTemplate');
+    const templateFileInput = document.getElementById('templateFile');
+    const statusMessageEl = document.getElementById('statusMessage');
+    const filterStoreInput = document.getElementById('filterStore');
+    const filterCategoryInput = document.getElementById('filterCategory');
+    const filterDoneInput = document.getElementById('filterDone');
+    const resetFiltersBtn = document.getElementById('resetFilters');
+    const categoryControlsEl = document.getElementById('categoryControls');
+    const defaultTemplateDataEl = document.getElementById('defaultTemplateData');
     const listEl = document.getElementById('list');
+    const storeOptions = ['Digros', 'Albert Heijn', 'Overig'];
+    const defaultCategoryOptions = [
+      'Groente & fruit',
+      'Brood & bakkerij',
+      'Zuivel & gekoeld',
+      'Vlees & vis',
+      'Houdbaar',
+      'Snacks & drinken',
+      'Baby',
+      'Huisdier',
+      'Diepvries',
+      'Overig'
+    ];
+    let categoryOptions = loadCategoryOrder();
+    const filters = {
+      store: 'all',
+      category: 'all',
+      done: 'all'
+    };
 
     let items = loadItems();
 
@@ -351,6 +509,26 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     }
 
+    function loadCategoryOrder() {
+      try {
+        const raw = localStorage.getItem(CATEGORY_ORDER_KEY);
+        if (!raw) return [...defaultCategoryOptions];
+
+        const saved = JSON.parse(raw);
+        if (!Array.isArray(saved)) return [...defaultCategoryOptions];
+
+        const validSaved = saved.filter(category => defaultCategoryOptions.includes(category));
+        const missing = defaultCategoryOptions.filter(category => !validSaved.includes(category));
+        return [...validSaved, ...missing];
+      } catch {
+        return [...defaultCategoryOptions];
+      }
+    }
+
+    function saveCategoryOrder() {
+      localStorage.setItem(CATEGORY_ORDER_KEY, JSON.stringify(categoryOptions));
+    }
+
     function uid() {
       return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
     }
@@ -364,6 +542,20 @@
         done: false,
         categoryStatus: 'unknown'
       });
+      saveItems();
+      render();
+    }
+
+    function addItems(newItems) {
+      items = [...items, ...newItems];
+      saveItems();
+      render();
+    }
+
+    function updateItemCategory(id, category) {
+      const item = items.find(x => x.id === id);
+      if (!item || !categoryOptions.includes(category)) return;
+      item.category = category;
       saveItems();
       render();
     }
@@ -405,19 +597,38 @@
       render();
     }
 
-    function loadSample() {
-      if (items.length && !confirm('De huidige lijst blijft bestaan. Voorbeeldproducten toevoegen?')) return;
-      items = [...items, ...defaultItems.map(item => ({ ...item, id: uid() }))];
-      saveItems();
+    function moveCategory(category, direction) {
+      const index = categoryOptions.indexOf(category);
+      if (index === -1) return;
+
+      const nextIndex = direction === 'up' ? index - 1 : index + 1;
+      if (nextIndex < 0 || nextIndex >= categoryOptions.length) return;
+
+      const updated = [...categoryOptions];
+      [updated[index], updated[nextIndex]] = [updated[nextIndex], updated[index]];
+      categoryOptions = updated;
+      saveCategoryOrder();
+      populateFilterOptions();
+      renderCategoryControls();
       render();
+    }
+
+    function applyFilters(inputItems) {
+      return inputItems.filter(item => {
+        if (filters.store !== 'all' && item.store !== filters.store) return false;
+        if (filters.category !== 'all' && item.category !== filters.category) return false;
+        if (filters.done === 'done' && !item.done) return false;
+        if (filters.done === 'open' && item.done) return false;
+        return true;
+      });
     }
 
     function groupedItems() {
       const grouped = {};
-      const stores = ['Digros', 'Albert Heijn', 'Overig'];
+      const visibleItems = applyFilters(items);
 
-      for (const store of stores) {
-        const storeItems = items.filter(item => item.store === store);
+      for (const store of storeOptions) {
+        const storeItems = visibleItems.filter(item => item.store === store);
         if (!storeItems.length) continue;
 
         grouped[store] = {};
@@ -428,6 +639,37 @@
       }
 
       return grouped;
+    }
+
+    function populateFilterOptions() {
+      const currentStore = filterStoreInput.value || filters.store;
+      const currentCategory = filterCategoryInput.value || filters.category;
+
+      filterStoreInput.innerHTML = `
+        <option value="all">Alle supermarkten</option>
+        ${storeOptions.map(store => `<option value="${store}">${store}</option>`).join('')}
+      `;
+
+      filterCategoryInput.innerHTML = `
+        <option value="all">Alle categorieen</option>
+        ${categoryOptions.map(category => `<option value="${category}">${category}</option>`).join('')}
+      `;
+
+      filterStoreInput.value = storeOptions.includes(currentStore) ? currentStore : 'all';
+      filterCategoryInput.value = categoryOptions.includes(currentCategory) ? currentCategory : 'all';
+    }
+
+    function renderCategoryControls() {
+      categoryControlsEl.innerHTML = categoryOptions
+        .map((category, index) => `
+          <div class="category-row">
+            <div class="category-rank">${index + 1}</div>
+            <span class="category-name">${escapeHtml(category)}</span>
+            <button class="mini" type="button" ${index === 0 ? 'disabled' : ''} data-category="${escapeHtml(category)}" data-direction="up">Omhoog</button>
+            <button class="mini" type="button" ${index === categoryOptions.length - 1 ? 'disabled' : ''} data-category="${escapeHtml(category)}" data-direction="down">Omlaag</button>
+          </div>
+        `)
+        .join('');
     }
 
     function statusLabel(status) {
@@ -449,19 +691,13 @@
       }
 
       const groups = groupedItems();
-      const storeOrder = ['Digros', 'Albert Heijn', 'Overig'];
-      const categoryOrder = [
-        'Groente & fruit',
-        'Brood & bakkerij',
-        'Zuivel & gekoeld',
-        'Vlees & vis',
-        'Houdbaar',
-        'Snacks & drinken',
-        'Baby',
-        'Huisdier',
-        'Diepvries',
-        'Overig'
-      ];
+      const storeOrder = storeOptions;
+      const categoryOrder = categoryOptions;
+
+      if (!Object.keys(groups).length) {
+        listEl.innerHTML = '<div class="empty">Geen producten gevonden voor de gekozen filters.</div>';
+        return;
+      }
 
       listEl.innerHTML = storeOrder
         .filter(store => groups[store])
@@ -481,7 +717,13 @@
                           <input class="check" type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleDone('${item.id}')" />
                           <div class="item-main">
                             <div class="name">${escapeHtml(item.name)}</div>
-                            <div class="meta">${statusLabel(item.categoryStatus)}</div>
+                            <div class="item-tools">
+                              <select class="mini-select" onchange="updateItemCategory('${item.id}', this.value)" aria-label="Categorie aanpassen voor ${escapeHtml(item.name)}">
+                                ${categoryOptions
+                                  .map(categoryOption => `<option value="${escapeHtml(categoryOption)}" ${item.category === categoryOption ? 'selected' : ''}>${escapeHtml(categoryOption)}</option>`)
+                                  .join('')}
+                              </select>
+                            </div>
                             <div class="actions">
                               <button class="mini ${statusClass(item.categoryStatus)}" type="button" onclick="cycleCategoryStatus('${item.id}')">Controleer categorie</button>
                               <button class="mini danger" type="button" onclick="removeItem('${item.id}')">Verwijder</button>
@@ -508,6 +750,150 @@
         .replaceAll("'", '&#039;');
     }
 
+    function showStatus(message, type = 'ok') {
+      statusMessageEl.textContent = message;
+      statusMessageEl.className = `status-message visible ${type}`;
+    }
+
+    function clearStatus() {
+      statusMessageEl.textContent = '';
+      statusMessageEl.className = 'status-message';
+    }
+
+    function normalizeStore(value) {
+      const match = storeOptions.find(option => option.toLowerCase() === value.trim().toLowerCase());
+      return match || null;
+    }
+
+    function normalizeCategory(value) {
+      const match = defaultCategoryOptions.find(option => option.toLowerCase() === value.trim().toLowerCase());
+      return match || null;
+    }
+
+    function parseCsvLine(line) {
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let index = 0; index < line.length; index += 1) {
+        const char = line[index];
+        const next = line[index + 1];
+
+        if (char === '"') {
+          if (inQuotes && next === '"') {
+            current += '"';
+            index += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+          continue;
+        }
+
+        if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+          continue;
+        }
+
+        current += char;
+      }
+
+      values.push(current.trim());
+      return values;
+    }
+
+    function parseTemplateText(text) {
+      const lines = String(text || '').replace(/^\uFEFF/, '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+
+      if (lines.length < 2) {
+        throw new Error('empty');
+      }
+
+      const headers = parseCsvLine(lines[0]).map(value => value.toLowerCase());
+      const productIndex = headers.indexOf('product');
+      const storeIndex = headers.indexOf('winkel');
+      const categoryIndex = headers.indexOf('categorie');
+
+      if (productIndex === -1 || storeIndex === -1 || categoryIndex === -1) {
+        throw new Error('headers');
+      }
+
+      const importedItems = [];
+
+      for (let lineNumber = 1; lineNumber < lines.length; lineNumber += 1) {
+        const values = parseCsvLine(lines[lineNumber]);
+        const name = values[productIndex] || '';
+        const store = normalizeStore(values[storeIndex] || '');
+        const category = normalizeCategory(values[categoryIndex] || '');
+
+        if (!name) continue;
+        if (!store) throw new Error(`store:${lineNumber + 1}`);
+        if (!category) throw new Error(`category:${lineNumber + 1}`);
+
+        importedItems.push({
+          id: uid(),
+          name,
+          store,
+          category,
+          done: false,
+          categoryStatus: 'unknown'
+        });
+      }
+
+      if (!importedItems.length) {
+        throw new Error('no-items');
+      }
+
+      return importedItems;
+    }
+
+    async function loadDefaultItemsFromTemplate() {
+      if (items.length) return;
+
+      try {
+        const text = defaultTemplateDataEl.textContent || '';
+        items = parseTemplateText(text);
+        saveItems();
+        render();
+      } catch {
+        showStatus('De standaardlijst uit het CSV-bestand kon niet worden geladen.', 'error');
+      }
+    }
+
+    function importTemplateFile(file) {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        try {
+          const text = String(reader.result || '');
+          const importedItems = parseTemplateText(text);
+          addItems(importedItems);
+          showStatus(`${importedItems.length} boodschappen toegevoegd vanuit het template.`);
+        } catch (error) {
+          if (String(error.message).startsWith('store:')) {
+            showStatus(`Onbekende winkel op regel ${error.message.split(':')[1]}.`, 'error');
+          } else if (String(error.message).startsWith('category:')) {
+            showStatus(`Onbekende categorie op regel ${error.message.split(':')[1]}.`, 'error');
+          } else if (error.message === 'headers') {
+            showStatus('Gebruik de kolommen product, winkel en categorie in het template.', 'error');
+          } else if (error.message === 'empty' || error.message === 'no-items') {
+            showStatus('Het template bevat geen boodschappen.', 'error');
+          } else {
+            showStatus('Het template kon niet worden gelezen.', 'error');
+          }
+        } finally {
+          templateFileInput.value = '';
+        }
+      };
+
+      reader.onerror = () => {
+        templateFileInput.value = '';
+        showStatus('Het uploaden van het template is mislukt.', 'error');
+      };
+
+      reader.readAsText(file, 'utf-8');
+    }
+
     addBtn.addEventListener('click', () => {
       const name = productInput.value.trim();
       if (!name) {
@@ -523,15 +909,56 @@
       if (event.key === 'Enter') addBtn.click();
     });
 
-    loadSampleBtn.addEventListener('click', loadSample);
+    downloadTemplateBtn.addEventListener('click', () => {
+      window.location.href = TEMPLATE_FILE;
+    });
+    importTemplateBtn.addEventListener('click', () => {
+      clearStatus();
+      templateFileInput.click();
+    });
+    templateFileInput.addEventListener('change', (event) => {
+      const [file] = event.target.files || [];
+      if (file) importTemplateFile(file);
+    });
+    filterStoreInput.addEventListener('change', (event) => {
+      filters.store = event.target.value;
+      render();
+    });
+    filterCategoryInput.addEventListener('change', (event) => {
+      filters.category = event.target.value;
+      render();
+    });
+    filterDoneInput.addEventListener('change', (event) => {
+      filters.done = event.target.value;
+      render();
+    });
+    resetFiltersBtn.addEventListener('click', () => {
+      filters.store = 'all';
+      filters.category = 'all';
+      filters.done = 'all';
+      filterStoreInput.value = 'all';
+      filterCategoryInput.value = 'all';
+      filterDoneInput.value = 'all';
+      render();
+    });
+    categoryControlsEl.addEventListener('click', (event) => {
+      const button = event.target.closest('button[data-category][data-direction]');
+      if (!button) return;
+      moveCategory(button.dataset.category, button.dataset.direction);
+    });
     clearDoneBtn.addEventListener('click', clearDone);
     resetAllBtn.addEventListener('click', resetAll);
 
     window.toggleDone = toggleDone;
     window.cycleCategoryStatus = cycleCategoryStatus;
     window.removeItem = removeItem;
+    window.updateItemCategory = updateItemCategory;
 
+    populateFilterOptions();
+    renderCategoryControls();
     render();
+    loadDefaultItemsFromTemplate();
   </script>
 </body>
 </html>
+
